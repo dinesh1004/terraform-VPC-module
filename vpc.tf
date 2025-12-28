@@ -12,6 +12,8 @@ resource "aws_vpc" "main" {
   )
 }
 
+# Internet Gateway
+
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
@@ -23,6 +25,8 @@ resource "aws_internet_gateway" "main" {
     }
    )
 }
+
+# Public Subnet
 
 resource "aws_subnet" "public" {
   count = length(var.public_subnet_cidrs)
@@ -40,6 +44,8 @@ resource "aws_subnet" "public" {
 
 }
 
+# Private Subnet
+
 resource "aws_subnet" "private" {
   count = length(var.private_subnet_cidrs)
   vpc_id     = aws_vpc.main.id
@@ -54,6 +60,8 @@ resource "aws_subnet" "private" {
   )
 
 }
+
+# Database Subnet
 
 resource "aws_subnet" "database" {
   count = length(var.database_subnet_cidrs)
@@ -112,3 +120,10 @@ resource "aws_route_table" "database" {
   )
 }
 
+# public Route
+
+resource "aws_route" "public_route" {
+  route_table_id            = aws_route_table.public.id
+  destination_cidr_block    = "0.0.0.0/0"
+  gateway_id  = aws_internet_gateway.main.id
+}
